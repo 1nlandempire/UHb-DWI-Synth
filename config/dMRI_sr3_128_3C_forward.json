@@ -1,0 +1,66 @@
+{
+    "name": "forward", // 注意修改pth 模型 以及模型参数
+    "phase": "val", // train or val
+    "gpu_ids": [
+        0, 1, 2, 3
+    ],
+    "path": { //set the path
+        "log": "logs",
+        "tb_logger": "tb_logger",
+        "results": "results",
+        "checkpoint": "checkpoint",
+        "resume_state": "/home/wtl/workspace/SR_3C/experiments/SR3_241211_163915/checkpoint/I19000_E26"  //b0
+
+    },
+    "datasets": {
+        "val": {
+            "name": "MGH_val",
+            "mode": "LRHR",
+            "dataroot": "/data/wtl/SR_data_val/",
+            "datatype": "lmdb", //lmdb or img, path of img files
+            "l_resolution": 128,
+            "r_resolution": 128,
+            "data_len": 50 // data length in validation
+        }
+    },
+    "model": {
+        "which_model_G": "sr3", // use the ddpm or sr3 network structure
+        "finetune_norm": false,
+        "unet": {
+            "in_channel": 4,    // b1000 3000 5000 + noise
+            "out_channel": 1,
+            "inner_channel": 64,
+            "channel_multiplier": [
+                1,
+                2,
+                4,
+                8,
+                8
+            ],
+            "attn_res": [
+                16
+            ],
+            "res_blocks": 2,
+            "dropout": 0.2
+        },
+        "beta_schedule": { // use munual beta_schedule for acceleration
+            "train": {
+                "schedule": "linear",
+                "n_timestep": 1000,
+                "linear_start": 1e-6,
+                "linear_end": 1e-2
+            },
+            "val": {
+                "schedule": "linear",
+                "n_timestep": 1000,
+                "linear_start": 1e-6,
+                "linear_end": 1e-2
+            }
+        },
+        "diffusion": {
+            "image_size": 128,
+            "channels": 1, //sample channel
+            "conditional": true // unconditional generation or unconditional generation(super_resolution)
+        }
+    }
+}
